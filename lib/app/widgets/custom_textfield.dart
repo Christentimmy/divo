@@ -38,6 +38,7 @@ class CustomTextField extends StatelessWidget {
   TextStyle? labelStyle;
   FloatingLabelBehavior? floatingLabelBehavior;
   Color? suffixIconcolor;
+  TextAlign? textAlign;
 
   CustomTextField({
     super.key,
@@ -73,6 +74,7 @@ class CustomTextField extends StatelessWidget {
     this.contentPadding,
     this.suffixIconcolor,
     this.onPrefixTap,
+    this.textAlign,
   });
 
   @override
@@ -101,6 +103,7 @@ class CustomTextField extends StatelessWidget {
         cursorColor: AppColors.neonPurpleGlow,
         controller: controller,
         keyboardType: keyboardType,
+        textAlign: textAlign ?? TextAlign.start,
         style:
             textStyle ??
             GoogleFonts.fredoka(
@@ -112,6 +115,7 @@ class CustomTextField extends StatelessWidget {
             ),
         maxLines: maxLines ?? 1,
         minLines: minLines ?? 1,
+
         decoration: InputDecoration(
           fillColor: bgColor,
           errorText: null,

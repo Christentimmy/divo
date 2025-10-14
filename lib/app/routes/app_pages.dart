@@ -1,8 +1,8 @@
 import 'dart:ui';
 
-import 'package:divo/app/modules/auth/login_screen.dart';
-import 'package:divo/app/modules/auth/otp_screen.dart';
-import 'package:divo/app/modules/auth/signup_screen.dart';
+import 'package:divo/app/modules/auth/views/login_screen.dart';
+import 'package:divo/app/modules/auth/views/otp_screen.dart';
+import 'package:divo/app/modules/auth/views/signup_screen.dart';
 import 'package:divo/app/modules/dial/views/dial_screen.dart';
 import 'package:divo/app/modules/splash/views/splash_screen.dart';
 import 'package:divo/app/routes/app_routes.dart';
