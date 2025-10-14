@@ -25,6 +25,7 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
+        scaffoldBackgroundColor: AppColors.background,
         splashFactory: NoSplash.splashFactory,
         primaryColor: AppColors.primaryColor,
         textTheme: GoogleFonts.poppinsTextTheme(),

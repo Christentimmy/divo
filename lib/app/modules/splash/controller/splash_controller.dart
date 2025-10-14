@@ -1,3 +1,4 @@
+import 'package:divo/app/routes/app_routes.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -49,7 +50,9 @@ class SplashController extends GetxController with GetTickerProviderStateMixin {
     });
   }
 
-  void _navigateToOnboarding() {}
+  void _navigateToOnboarding() {
+    Get.offNamed(AppRoutes.signup);
+  }
 
   @override
   void onClose() {
