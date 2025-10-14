@@ -2,7 +2,9 @@ import 'package:divo/app/resources/app_colors.dart';
 import 'package:divo/app/routes/app_routes.dart';
 import 'package:divo/app/widgets/custom_button.dart';
 import 'package:divo/app/widgets/custom_textfield.dart';
+import 'package:divo/app/widgets/staggered_column_animation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,12 +14,15 @@ class LoginScreen extends StatelessWidget {
   final formKey = GlobalKey<FormState>();
   final isPasswordVisible = true.obs;
 
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
+        child: StaggeredColumnAnimation(
           children: [
             SizedBox(height: Get.height * 0.16),
             buildLogoText(),
@@ -45,7 +50,11 @@ class LoginScreen extends StatelessWidget {
             buildFormFields(),
             SizedBox(height: Get.height * 0.1),
             CustomButton(
-              ontap: () {},
+              ontap: () {
+                HapticFeedback.lightImpact();
+                if (formKey.currentState?.validate() == false) return;
+                Get.toNamed(AppRoutes.dial);
+              },
               isLoading: false.obs,
               child: Text(
                 "Login",
@@ -94,6 +103,7 @@ class LoginScreen extends StatelessWidget {
         children: [
           CustomTextField(
             hintText: "Email",
+            controller: emailController,
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icons.email,
             prefixIconColor: const Color.fromARGB(255, 174, 144, 201),
@@ -101,12 +111,16 @@ class LoginScreen extends StatelessWidget {
           SizedBox(height: Get.height * 0.02),
           Obx(() {
             return CustomTextField(
+              controller: passwordController,
               hintText: "Password",
               prefixIcon: Icons.lock,
               prefixIconColor: const Color.fromARGB(255, 174, 144, 201),
               isObscure: isPasswordVisible.value,
-              onSuffixTap: () => isPasswordVisible.value = !isPasswordVisible.value,
-              suffixIcon: isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
+              onSuffixTap: () =>
+                  isPasswordVisible.value = !isPasswordVisible.value,
+              suffixIcon: isPasswordVisible.value
+                  ? Icons.visibility
+                  : Icons.visibility_off,
             );
           }),
         ],
