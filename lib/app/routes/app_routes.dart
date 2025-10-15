@@ -9,4 +9,5 @@ class AppRoutes {
   static const String createContact = '/create-contact';
   static const String contacts = '/contacts';
   static const String history = '/history';
+  static const String settings = '/settings';
 }
