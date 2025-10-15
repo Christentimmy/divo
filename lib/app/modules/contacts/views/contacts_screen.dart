@@ -41,49 +41,53 @@ class ContactsScreen extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: 10,
               itemBuilder: (context, index) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 15),
-                  decoration: BoxDecoration(
-                    color: AppColors.background,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.neonPurpleGlow.withValues(alpha: 0.22),
-                        spreadRadius: 0,
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                    },
-                    title: Text(
-                      "John Doe",
-                      style: GoogleFonts.fredoka(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    subtitle: Text(
-                      "+81 90 1234 5678",
-                      style: GoogleFonts.fredoka(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white,
-                      ),
-                    ),
-                    trailing: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: AppColors.primaryColor,
-                      child: Icon(Icons.call, color: Colors.white),
-                    ),
-                  ),
-                );
+                return buildContactCard();
               },
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Container buildContactCard() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.neonPurpleGlow.withValues(alpha: 0.22),
+            spreadRadius: 0,
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: ListTile(
+        onTap: () {
+          HapticFeedback.lightImpact();
+        },
+        title: Text(
+          "John Doe",
+          style: GoogleFonts.fredoka(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        subtitle: Text(
+          "+81 90 1234 5678",
+          style: GoogleFonts.fredoka(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+          ),
+        ),
+        trailing: CircleAvatar(
+          radius: 20,
+          backgroundColor: AppColors.primaryColor,
+          child: Icon(Icons.call, color: Colors.white),
         ),
       ),
     );

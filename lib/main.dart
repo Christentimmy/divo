@@ -17,7 +17,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: "Divo",
-      initialRoute: AppRoutes.contacts,
+      initialRoute: AppRoutes.history,
       getPages: AppPages.routes,
       debugShowCheckedModeBanner: false,
       defaultTransition: Transition.fadeIn,
