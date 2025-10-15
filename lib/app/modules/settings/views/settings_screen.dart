@@ -1,5 +1,7 @@
 import 'package:divo/app/modules/settings/controller/settings_controller.dart';
 import 'package:divo/app/resources/app_colors.dart';
+import 'package:divo/app/widgets/custom_button.dart';
+import 'package:divo/app/widgets/staggered_column_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,28 +16,45 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: buildAppBar(),
-      body: ListView(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        children: [
-          _buildSectionHeader('SIP Configuration'),
-          _buildSIPConfigSection(),
-          const SizedBox(height: 24),
+        child: StaggeredColumnAnimation(
+          children: [
+            _buildSectionHeader('SIP Configuration'),
+            _buildSIPConfigSection(),
+            const SizedBox(height: 24),
 
-          _buildSectionHeader('Audio Settings'),
-          _buildAudioSettingsSection(),
-          const SizedBox(height: 24),
+            _buildSectionHeader('Audio Settings'),
+            _buildAudioSettingsSection(),
+            const SizedBox(height: 24),
 
-          _buildSectionHeader('Call Settings'),
-          _buildCallSettingsSection(),
-          const SizedBox(height: 24),
+            _buildSectionHeader('Call Settings'),
+            _buildCallSettingsSection(),
+            const SizedBox(height: 24),
 
-          _buildSectionHeader('Account'),
-          _buildAccountSection(),
-          const SizedBox(height: 32),
+            _buildSectionHeader('Account'),
+            _buildAccountSection(),
+            const SizedBox(height: 32),
 
-          _buildSaveButton(),
-          const SizedBox(height: 16),
-        ],
+            const SizedBox(height: 16),
+            CustomButton(
+              ontap: () {},
+              isLoading: false.obs,
+              child: Text(
+                "Top Up",
+                style: GoogleFonts.fredoka(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildSaveButton(),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
@@ -196,15 +215,21 @@ class SettingsScreen extends StatelessWidget {
     return _buildSettingsCard([
       _buildTextField(
         label: 'Username',
-        hint: 'user@domain.com',
+        hint: 'john doe',
         value: controller.username,
         icon: Icons.person,
       ),
       _buildTextField(
-        label: 'Display Name',
-        hint: 'John Doe',
-        value: controller.displayName,
-        icon: Icons.badge,
+        label: 'Email',
+        hint: 'john.doe@example.com',
+        value: RxString(''),
+        icon: Icons.email,
+      ),
+      _buildTextField(
+        label: 'Balance',
+        hint: "0.00",
+        value: RxString(''),
+        icon: Icons.attach_money,
       ),
     ]);
   }

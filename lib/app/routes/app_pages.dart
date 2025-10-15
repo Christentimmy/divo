@@ -10,6 +10,7 @@ import 'package:divo/app/modules/dial/views/dial_screen.dart';
 import 'package:divo/app/modules/settings/views/settings_screen.dart';
 import 'package:divo/app/modules/splash/views/splash_screen.dart';
 import 'package:divo/app/routes/app_routes.dart';
+import 'package:divo/app/widgets/bottom_navigation_widget.dart';
 import 'package:get/get.dart';
 
 class AppPages {
@@ -38,5 +39,6 @@ class AppPages {
     GetPage(name: AppRoutes.contacts, page: () => ContactsScreen()),
     GetPage(name: AppRoutes.history, page: () => HistoryScreen()),
     GetPage(name: AppRoutes.settings, page: () => SettingsScreen()),
+    GetPage(name: AppRoutes.bottomNavigation, page: () => BottomNavigationWidget()),
   ];
 }

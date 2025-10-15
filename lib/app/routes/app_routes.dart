@@ -10,4 +10,5 @@ class AppRoutes {
   static const String contacts = '/contacts';
   static const String history = '/history';
   static const String settings = '/settings';
+  static const String bottomNavigation = '/bottomNavigation';
 }

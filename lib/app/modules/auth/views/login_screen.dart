@@ -53,7 +53,7 @@ class LoginScreen extends StatelessWidget {
               ontap: () {
                 HapticFeedback.lightImpact();
                 if (formKey.currentState?.validate() == false) return;
-                Get.toNamed(AppRoutes.dial);
+                Get.offNamed(AppRoutes.bottomNavigation);
               },
               isLoading: false.obs,
               child: Text(

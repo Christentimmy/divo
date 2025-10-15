@@ -145,7 +145,7 @@ class _OtpScreenState extends State<OtpScreen>
               ),
               ontap: () {
                 HapticFeedback.lightImpact();
-                Get.toNamed(AppRoutes.dial);
+                Get.offNamed(AppRoutes.bottomNavigation);
               },
             ),
             SizedBox(height: Get.height * 0.028),
