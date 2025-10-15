@@ -1,4 +1,5 @@
 import 'package:divo/app/resources/app_colors.dart';
+import 'package:divo/app/routes/app_routes.dart';
 import 'package:divo/app/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,7 +53,14 @@ class DialScreen extends StatelessWidget {
               buildLogoText(),
               const Spacer(),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  if (_input.value.isEmpty) return;
+                  Get.toNamed(
+                    AppRoutes.createContact,
+                    arguments: {'phoneNumber': _input.value},
+                  );
+                },
                 icon: Icon(Icons.add, color: Colors.grey.shade300),
               ),
             ],
