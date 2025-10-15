@@ -7,4 +7,5 @@ class AppRoutes {
   static const String dial = '/dial';
   static const String otp = '/otp';
   static const String createContact = '/create-contact';
+  static const String contacts = '/contacts';
 }
