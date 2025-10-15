@@ -15,6 +15,7 @@ class ContactsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         centerTitle: true,
+        automaticallyImplyLeading: false,
         title: Text(
           "Contacts",
           style: GoogleFonts.fredoka(

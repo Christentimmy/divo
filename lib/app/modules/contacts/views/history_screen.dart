@@ -29,6 +29,7 @@ class HistoryScreen extends StatelessWidget {
 
   AppBar buildAppBar() {
     return AppBar(
+      automaticallyImplyLeading: false,
       backgroundColor: AppColors.background,
       title: Text(
         "History",

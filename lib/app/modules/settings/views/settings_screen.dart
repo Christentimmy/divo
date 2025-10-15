@@ -1,5 +1,6 @@
 import 'package:divo/app/modules/settings/controller/settings_controller.dart';
 import 'package:divo/app/resources/app_colors.dart';
+import 'package:divo/app/routes/app_routes.dart';
 import 'package:divo/app/widgets/custom_button.dart';
 import 'package:divo/app/widgets/staggered_column_animation.dart';
 import 'package:flutter/material.dart';
@@ -35,8 +36,6 @@ class SettingsScreen extends StatelessWidget {
             _buildSectionHeader('Account'),
             _buildAccountSection(),
             const SizedBox(height: 32),
-
-            const SizedBox(height: 16),
             CustomButton(
               ontap: () {},
               isLoading: false.obs,
@@ -52,6 +51,21 @@ class SettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _buildSaveButton(),
+            const SizedBox(height: 16),
+            CustomButton(
+              ontap: () => Get.offAllNamed(AppRoutes.login),
+              isLoading: false.obs,
+              bgColor: Colors.red,
+              child: Text(
+                "Logout",
+                style: GoogleFonts.fredoka(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
           ],
         ),
