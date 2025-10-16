@@ -40,32 +40,20 @@ class DialScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: buildAppBar(),
       body: Column(
         children: [
-          SizedBox(height: Get.height * 0.05),
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.settings, color: Colors.grey.shade300),
+          Center(
+            child: Text(
+              "\$2.25",
+              style: GoogleFonts.fredoka(
+                fontSize: 22,
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
               ),
-              const Spacer(),
-              buildLogoText(),
-              const Spacer(),
-              IconButton(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  if (_input.value.isEmpty) return;
-                  Get.toNamed(
-                    AppRoutes.createContact,
-                    arguments: {'phoneNumber': _input.value},
-                  );
-                },
-                icon: Icon(Icons.add, color: Colors.grey.shade300),
-              ),
-            ],
+            ),
           ),
-          SizedBox(height: Get.height * 0.1),
+          SizedBox(height: Get.height * 0.05),
           Obx(() {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -161,21 +149,42 @@ class DialScreen extends StatelessWidget {
     );
   }
 
-  Center buildLogoText() {
-    return Center(
-      child: Text(
-        "Divo",
-        style: GoogleFonts.orbitron(
-          fontSize: 35,
-          fontWeight: FontWeight.w900,
-          color: AppColors.neonPurpleBright,
-          letterSpacing: 4,
-          shadows: [
-            Shadow(color: AppColors.neonPurple, blurRadius: 20),
-            Shadow(color: AppColors.neonPurpleGlow, blurRadius: 40),
-            Shadow(color: AppColors.neonPurpleBright, blurRadius: 10),
-          ],
+  AppBar buildAppBar() {
+    return AppBar(
+      title: buildLogoText(),
+      centerTitle: true,
+      backgroundColor: AppColors.background,
+      elevation: 0,
+      automaticallyImplyLeading: false,
+      actions: [
+        IconButton(
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            if (_input.value.isEmpty) return;
+            Get.toNamed(
+              AppRoutes.createContact,
+              arguments: {'phoneNumber': _input.value},
+            );
+          },
+          icon: Icon(Icons.add, color: Colors.grey.shade300),
         ),
+      ],
+    );
+  }
+
+  Widget buildLogoText() {
+    return Text(
+      "divo",
+      style: GoogleFonts.orbitron(
+        fontSize: 35,
+        fontWeight: FontWeight.w900,
+        color: AppColors.neonPurpleBright,
+        letterSpacing: 4,
+        shadows: [
+          Shadow(color: AppColors.neonPurple, blurRadius: 20),
+          Shadow(color: AppColors.neonPurpleGlow, blurRadius: 40),
+          Shadow(color: AppColors.neonPurpleBright, blurRadius: 10),
+        ],
       ),
     );
   }
