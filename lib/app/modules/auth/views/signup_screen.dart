@@ -24,7 +24,7 @@ class SignupScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: StaggeredColumnAnimation(
           children: [
-            SizedBox(height: Get.height * 0.16),
+            SizedBox(height: Get.height * 0.1),
             buildLogoText(),
             Center(
               child: Text(
@@ -48,7 +48,7 @@ class SignupScreen extends StatelessWidget {
             ),
             SizedBox(height: Get.height * 0.05),
             buildFormFields(),
-            SizedBox(height: Get.height * 0.1),
+            SizedBox(height: Get.height * 0.05),
             CustomButton(
               ontap: () {
                 HapticFeedback.lightImpact();
@@ -115,6 +115,20 @@ class SignupScreen extends StatelessWidget {
             controller: emailController,
             hintText: "Email",
             prefixIcon: Icons.email,
+            prefixIconColor: const Color.fromARGB(255, 174, 144, 201),
+          ),
+          SizedBox(height: Get.height * 0.02),
+          CustomTextField(
+            controller: emailController,
+            hintText: "Phone Number",
+            prefixIcon: Icons.phone,
+            prefixIconColor: const Color.fromARGB(255, 174, 144, 201),
+          ),
+          SizedBox(height: Get.height * 0.02),
+          CustomTextField(
+            controller: emailController,
+            hintText: "Country",
+            prefixIcon: Icons.flag,
             prefixIconColor: const Color.fromARGB(255, 174, 144, 201),
           ),
           SizedBox(height: Get.height * 0.02),
