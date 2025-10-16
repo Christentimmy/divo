@@ -31,6 +31,8 @@ class HistoryScreen extends StatelessWidget {
     return AppBar(
       automaticallyImplyLeading: false,
       backgroundColor: AppColors.background,
+      elevation: 0,
+      centerTitle: true,
       title: Text(
         "History",
         style: GoogleFonts.fredoka(
@@ -39,13 +41,6 @@ class HistoryScreen extends StatelessWidget {
           color: Colors.white,
         ),
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.more_vert),
-          color: Colors.white,
-          onPressed: () {},
-        ),
-      ],
     );
   }
 
