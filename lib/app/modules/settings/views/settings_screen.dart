@@ -21,21 +21,6 @@ class SettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: StaggeredColumnAnimation(
           children: [
-            _buildSectionHeader('SIP Configuration'),
-            _buildSIPConfigSection(),
-            const SizedBox(height: 24),
-
-            _buildSectionHeader('Audio Settings'),
-            _buildAudioSettingsSection(),
-            const SizedBox(height: 24),
-
-            _buildSectionHeader('Call Settings'),
-            _buildCallSettingsSection(),
-            const SizedBox(height: 24),
-
-            _buildSectionHeader('Account'),
-            _buildAccountSection(),
-            const SizedBox(height: 32),
             CustomButton(
               ontap: () {},
               isLoading: false.obs,
@@ -50,8 +35,18 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            _buildSaveButton(),
-            const SizedBox(height: 16),
+            _buildSectionHeader('SIP Configuration'),
+            _buildSIPConfigSection(),
+            const SizedBox(height: 24),
+
+            _buildSectionHeader('Audio Settings'),
+            _buildAudioSettingsSection(),
+            const SizedBox(height: 24),
+
+            _buildSectionHeader('Account'),
+            _buildAccountSection(),
+            const SizedBox(height: 24),
+
             CustomButton(
               ontap: () => Get.offAllNamed(AppRoutes.login),
               isLoading: false.obs,
@@ -80,10 +75,10 @@ class SettingsScreen extends StatelessWidget {
       centerTitle: true,
       title: Text(
         'Settings',
-        style: GoogleFonts.orbitron(
-          color: Colors.white,
-          fontSize: 24,
+        style: GoogleFonts.fredoka(
+          fontSize: 25,
           fontWeight: FontWeight.w700,
+          color: Colors.white,
         ),
       ),
     );
@@ -94,7 +89,7 @@ class SettingsScreen extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12, top: 8),
       child: Text(
         title,
-        style: GoogleFonts.orbitron(
+        style: GoogleFonts.fredoka(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: Colors.white,
@@ -111,6 +106,7 @@ class SettingsScreen extends StatelessWidget {
         hint: 'sip.example.com',
         value: controller.sipServer,
         icon: Icons.dns,
+        isReadOnly: true,
       ),
       _buildTextField(
         label: 'Port',
@@ -118,6 +114,7 @@ class SettingsScreen extends StatelessWidget {
         value: controller.sipPort,
         icon: Icons.settings_input_antenna,
         keyboardType: TextInputType.number,
+        isReadOnly: true,
       ),
       _buildDropdown(
         label: 'Transport Protocol',
@@ -188,43 +185,6 @@ class SettingsScreen extends StatelessWidget {
     ]);
   }
 
-  Widget _buildCallSettingsSection() {
-    return _buildSettingsCard([
-      Obx(
-        () => _buildSwitch(
-          label: 'Auto Answer',
-          value: controller.autoAnswer.value,
-          onChanged: (val) => controller.autoAnswer.value = val,
-          icon: Icons.phone_callback,
-        ),
-      ),
-      Obx(
-        () => _buildSwitch(
-          label: 'Call Recording',
-          value: controller.callRecording.value,
-          onChanged: (val) => controller.callRecording.value = val,
-          icon: Icons.fiber_manual_record,
-        ),
-      ),
-      Obx(
-        () => _buildSwitch(
-          label: 'Vibration on Call',
-          value: controller.vibrationOnCall.value,
-          onChanged: (val) => controller.vibrationOnCall.value = val,
-          icon: Icons.vibration,
-        ),
-      ),
-      Obx(
-        () => _buildSwitch(
-          label: 'Show Call Duration',
-          value: controller.showCallDuration.value,
-          onChanged: (val) => controller.showCallDuration.value = val,
-          icon: Icons.timer,
-        ),
-      ),
-    ]);
-  }
-
   Widget _buildAccountSection() {
     return _buildSettingsCard([
       _buildTextField(
@@ -269,6 +229,7 @@ class SettingsScreen extends StatelessWidget {
     required RxString value,
     required IconData icon,
     TextInputType? keyboardType,
+    bool isReadOnly = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -282,7 +243,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.fredoka(
                     color: Colors.white70,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -290,11 +251,12 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Obx(
-                  () => TextField(
-                    style: GoogleFonts.inter(color: Colors.white),
+                  () => TextFormField(
+                    readOnly: isReadOnly,
+                    style: GoogleFonts.fredoka(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: hint,
-                      hintStyle: GoogleFonts.inter(color: Colors.white30),
+                      hintStyle: GoogleFonts.fredoka(color: Colors.white30),
                       isDense: true,
                       contentPadding: const EdgeInsets.symmetric(vertical: 8),
                       enabledBorder: UnderlineInputBorder(
@@ -338,7 +300,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.fredoka(
                     color: Colors.white70,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -350,7 +312,7 @@ class SettingsScreen extends StatelessWidget {
                     value: value.value,
                     isExpanded: true,
                     dropdownColor: const Color(0xFF2A2A2A),
-                    style: GoogleFonts.inter(color: Colors.white),
+                    style: GoogleFonts.fredoka(color: Colors.white),
                     underline: Container(height: 1, color: Colors.white24),
                     items: items.map((String item) {
                       return DropdownMenuItem<String>(
@@ -391,7 +353,7 @@ class SettingsScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.fredoka(
                     color: Colors.white70,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -400,7 +362,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               Text(
                 '${value.toInt()}%',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.fredoka(
                   color: AppColors.neonPurpleBright,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -437,7 +399,7 @@ class SettingsScreen extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.fredoka(
                 color: Colors.white70,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -454,45 +416,6 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSaveButton() {
-    return Container(
-      width: double.infinity,
-      height: 50,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.neonPurple, AppColors.neonPurpleBright],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.neonPurple.withOpacity(0.5),
-            blurRadius: 20,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: () => controller.saveSettings(),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        child: Text(
-          'Save Settings',
-          style: GoogleFonts.fredoka(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: 1.2,
-          ),
-        ),
       ),
     );
   }

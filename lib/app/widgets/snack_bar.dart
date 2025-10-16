@@ -13,14 +13,14 @@ class CustomSnackbar {
       toastPosition: position,
       title: Text(
         "Error",
-        style: GoogleFonts.poppins(
+        style: GoogleFonts.fredoka(
           color: Colors.white,
           fontWeight: FontWeight.bold,
         ),
       ),
       description: Text(
         message,
-        style: GoogleFonts.poppins(color: Colors.white),
+        style: GoogleFonts.fredoka(color: Colors.white, fontSize: 12),
       ),
       backgroundColor: const Color.fromARGB(216, 244, 67, 54),
       animationDuration: const Duration(milliseconds: 300),
@@ -45,14 +45,14 @@ class CustomSnackbar {
     CherryToast.success(
       title: Text(
         "Success",
-        style: GoogleFonts.poppins(
+        style: GoogleFonts.fredoka(
           color: Colors.white,
           fontWeight: FontWeight.bold,
         ),
       ),
       description: Text(
         message,
-        style: GoogleFonts.poppins(color: Colors.white),
+        style: GoogleFonts.fredoka(color: Colors.white, fontSize: 12),
       ),
       backgroundColor: Colors.green,
       animationDuration: const Duration(milliseconds: 300),

@@ -1,6 +1,7 @@
 import 'package:divo/app/resources/app_colors.dart';
 import 'package:divo/app/routes/app_routes.dart';
 import 'package:divo/app/widgets/custom_textfield.dart';
+import 'package:divo/app/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -160,7 +161,10 @@ class DialScreen extends StatelessWidget {
         IconButton(
           onPressed: () {
             HapticFeedback.lightImpact();
-            if (_input.value.isEmpty) return;
+            if (_input.value.isEmpty) {
+              CustomSnackbar.showErrorToast("Enter number to save");
+              return;
+            }
             Get.toNamed(
               AppRoutes.createContact,
               arguments: {'phoneNumber': _input.value},
