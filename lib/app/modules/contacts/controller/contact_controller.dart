@@ -34,7 +34,7 @@ class ContactController extends GetxController {
     }
   }
 
-  void searchContact({required String contact}) async {
+  Future<void> searchContactWithName({required String contact}) async {
     final result = contacts
         .where(
           (element) =>
@@ -42,5 +42,13 @@ class ContactController extends GetxController {
         )
         .toList();
     contacts.assignAll(result);
+  }
+
+  @override
+  void onClose() {
+    contacts.clear();
+    isLoading.value = false;
+    searchText.value = "";
+    super.onClose();
   }
 }

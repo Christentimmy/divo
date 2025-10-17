@@ -1,40 +1,15 @@
+import 'package:divo/app/modules/contacts/widgets/build_contact_card_widget.dart';
+import 'package:divo/app/modules/dial/controller/dial_controller.dart';
 import 'package:divo/app/resources/app_colors.dart';
 import 'package:divo/app/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class DialScreen extends StatelessWidget {
   DialScreen({super.key});
 
-  final RxString _input = ''.obs;
-
-  final List<Map<String, String>> _keys = [
-    {'number': '1', 'letters': '-'},
-    {'number': '2', 'letters': 'ABC'},
-    {'number': '3', 'letters': 'DEF'},
-    {'number': '4', 'letters': 'GHI'},
-    {'number': '5', 'letters': 'JKL'},
-    {'number': '6', 'letters': 'MNO'},
-    {'number': '7', 'letters': 'PQRS'},
-    {'number': '8', 'letters': 'TUV'},
-    {'number': '9', 'letters': 'WXYZ'},
-    {'number': '+', 'letters': ''},
-    {'number': '0', 'letters': ''},
-    {'number': '#', 'letters': ''},
-  ];
-
-  void _onKeyTap(String value) {
-    HapticFeedback.lightImpact();
-    _input.value += value;
-  }
-
-  void _onBackspace() {
-    if (_input.isNotEmpty) {
-      _input.value = _input.value.substring(0, _input.value.length - 1);
-    }
-  }
+  final dialController = Get.put(DialController());
 
   @override
   Widget build(BuildContext context) {
@@ -42,108 +17,131 @@ class DialScreen extends StatelessWidget {
       appBar: buildAppBar(),
       body: Column(
         children: [
-          Center(
-            child: Text(
-              "\$2.25",
-              style: GoogleFonts.fredoka(
-                fontSize: 22,
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          SizedBox(height: Get.height * 0.05),
-          Obx(() {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: CustomTextField(
-                hintText: _input.value,
-                readOnly: true,
-                hintStyle: GoogleFonts.fredoka(
-                  fontSize: 22,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-                contentPadding: EdgeInsets.only(
-                  left: Get.width * 0.15,
-                  top: 10,
-                  bottom: 10,
-                ),
-              ),
-            );
-          }),
-
-          const SizedBox(height: 40),
-
-          // Number grid
-          Expanded(
-            child: GridView.builder(
-              itemCount: _keys.length,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 50),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 15,
-                crossAxisSpacing: 20,
-                childAspectRatio: 1,
-              ),
-              itemBuilder: (context, index) {
-                final key = _keys[index];
-                return _DialButton(
-                  number: key['number']!,
-                  letters: key['letters']!,
-                  onTap: () => _onKeyTap(key['number']!),
-                );
-              },
-            ),
-          ),
-
-          // Bottom row (call + delete)
-          Obx(() {
-            if (_input.isEmpty) {
-              return SizedBox.shrink();
-            }
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 40, top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Call button
-                  InkWell(
-                    onTap: () {
-                      debugPrint('Calling $_input...');
-                    },
-                    borderRadius: BorderRadius.circular(40),
-                    child: CircleAvatar(
-                      radius: 35,
-                      backgroundColor: AppColors.neonPurpleGlow,
-                      child: Icon(Icons.phone, color: Colors.white, size: 32),
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                  // Backspace button
-                  InkWell(
-                    onTap: _onBackspace,
-                    onLongPress: () {
-                      _input.value = '';
-                    },
-                    borderRadius: BorderRadius.circular(40),
-                    splashColor: Colors.redAccent.withOpacity(0.4),
-                    child: const CircleAvatar(
-                      radius: 35,
-                      backgroundColor: Colors.redAccent,
-                      child: Icon(
-                        Icons.backspace_outlined,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
+          buildBalanceWidget(),
+          buildLikelyContacts(),
+          const SizedBox(height: 15),
+          buildInputField(),
+          const SizedBox(height: 15),
+          buildKeyPads(),
+          buildActionButtons(),
+          const SizedBox(height: 20),
         ],
+      ),
+    );
+  }
+
+  Obx buildActionButtons() {
+    return Obx(() {
+      if (dialController.input.isEmpty) {
+        return SizedBox.shrink();
+      }
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Call button
+          InkWell(
+            onTap: () {},
+            borderRadius: BorderRadius.circular(40),
+            child: CircleAvatar(
+              radius: 35,
+              backgroundColor: AppColors.neonPurpleGlow,
+              child: Icon(Icons.phone, color: Colors.white, size: 32),
+            ),
+          ),
+          const SizedBox(width: 40),
+          // Backspace button
+          InkWell(
+            onTap: dialController.onBackspace,
+            onLongPress: () async {
+              dialController.input.value = '';
+            },
+            borderRadius: BorderRadius.circular(40),
+            splashColor: Colors.redAccent.withValues(alpha: 0.4),
+            child: const CircleAvatar(
+              radius: 35,
+              backgroundColor: Colors.redAccent,
+              child: Icon(
+                Icons.backspace_outlined,
+                color: Colors.white,
+                size: 28,
+              ),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  Expanded buildKeyPads() {
+    return Expanded(
+      flex: 3,
+      child: GridView.builder(
+        itemCount: dialController.keys.length,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 50),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 25,
+          childAspectRatio: 1,
+        ),
+        itemBuilder: (context, index) {
+          final key = dialController.keys[index];
+          return _DialButton(
+            number: key['number']!,
+            letters: key['letters']!,
+            onTap: () => dialController.onKeyTap(key['number']!),
+          );
+        },
+      ),
+    );
+  }
+
+  Obx buildInputField() {
+    return Obx(() {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: CustomTextField(
+          hintText: dialController.input.value,
+          readOnly: true,
+          hintStyle: GoogleFonts.fredoka(fontSize: 22, color: Colors.white),
+          textAlign: TextAlign.center,
+          contentPadding: EdgeInsets.only(
+            left: Get.width * 0.15,
+            top: 10,
+            bottom: 10,
+          ),
+        ),
+      );
+    });
+  }
+
+  Expanded buildLikelyContacts() {
+    return Expanded(
+      child: Obx(() {
+        if (dialController.input.isEmpty) {
+          return SizedBox.shrink();
+        }
+        return ListView.builder(
+          itemCount: dialController.filterContacts.length,
+          itemBuilder: (context, index) {
+            final contact = dialController.filterContacts[index];
+            return buildContactCard(contact: contact);
+          },
+        );
+      }),
+    );
+  }
+
+  Center buildBalanceWidget() {
+    return Center(
+      child: Text(
+        "\$2.25",
+        style: GoogleFonts.fredoka(
+          fontSize: 22,
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
