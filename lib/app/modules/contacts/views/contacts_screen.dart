@@ -54,17 +54,52 @@ class _ContactsScreenState extends State<ContactsScreen> {
               hintText: "Search",
               prefixIcon: Icons.search,
               prefixIconColor: const Color.fromARGB(255, 174, 144, 201),
-            ),
-            SizedBox(height: Get.height * 0.05),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: contactController.contacts.length,
-              itemBuilder: (context, index) {
-                final contact = contactController.contacts[index];
-                return buildContactCard(contact: contact);
+              onChanged: (value) {
+                contactController.searchContact(contact: value);
+                if(value.isEmpty){
+                  contactController.loadContacts(showLoader: false);
+                }
               },
             ),
+            SizedBox(height: Get.height * 0.05),
+            Obx(() {
+              if (contactController.isLoading.value) {
+                return SizedBox(
+                  height: Get.height * 0.45,
+                  width: Get.width,
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                );
+              }
+              if (contactController.contacts.isEmpty) {
+                return SizedBox(
+                  height: Get.height * 0.45,
+                  width: Get.width,
+                  child: Center(
+                    child: Text(
+                      "No contacts found",
+                      style: GoogleFonts.fredoka(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: contactController.contacts.length,
+                itemBuilder: (context, index) {
+                  final contact = contactController.contacts[index];
+                  return buildContactCard(contact: contact);
+                },
+              );
+            }),
           ],
         ),
       ),
@@ -98,9 +133,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           ),
         ),
         subtitle: Text(
-          contact.phones.isNotEmpty
-              ? contact.phones.first.number
-              : "",
+          contact.phones.isNotEmpty ? contact.phones.first.number : "",
           style: GoogleFonts.fredoka(
             fontSize: 14,
             fontWeight: FontWeight.w400,
