@@ -1,3 +1,4 @@
+import 'package:divo/app/bindings/app_bindings.dart';
 import 'package:divo/app/resources/app_colors.dart';
 import 'package:divo/app/routes/app_pages.dart';
 import 'package:divo/app/routes/app_routes.dart';
@@ -21,7 +22,7 @@ class MainApp extends StatelessWidget {
       getPages: AppPages.routes,
       debugShowCheckedModeBanner: false,
       defaultTransition: Transition.fadeIn,
-      // initialBinding: AppBindings(),
+      initialBinding: AppBindings(),
       theme: ThemeData(
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,

@@ -13,7 +13,10 @@ class SignupScreen extends StatelessWidget {
 
   final formKey = GlobalKey<FormState>();
   final isPasswordVisible = true.obs;
+  final isConfirmPasswordVisible = true.obs;
   final emailController = TextEditingController();
+  final phoneController = TextEditingController();
+  final countryController = TextEditingController();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -68,7 +71,7 @@ class SignupScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: Get.height * 0.05),
+            SizedBox(height: Get.height * 0.02),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -119,14 +122,14 @@ class SignupScreen extends StatelessWidget {
           ),
           SizedBox(height: Get.height * 0.02),
           CustomTextField(
-            controller: emailController,
+            controller: phoneController,
             hintText: "Phone Number",
             prefixIcon: Icons.phone,
             prefixIconColor: const Color.fromARGB(255, 174, 144, 201),
           ),
           SizedBox(height: Get.height * 0.02),
           CustomTextField(
-            controller: emailController,
+            controller: countryController,
             hintText: "Country",
             prefixIcon: Icons.flag,
             prefixIconColor: const Color.fromARGB(255, 174, 144, 201),
@@ -144,6 +147,29 @@ class SignupScreen extends StatelessWidget {
               suffixIcon: isPasswordVisible.value
                   ? Icons.visibility
                   : Icons.visibility_off,
+            );
+          }),
+          SizedBox(height: Get.height * 0.02),
+          Obx(() {
+            return CustomTextField(
+              hintText: "Confirm Password",
+              prefixIcon: Icons.lock,
+              prefixIconColor: const Color.fromARGB(255, 174, 144, 201),
+              isObscure: isConfirmPasswordVisible.value,
+              onSuffixTap: () => isConfirmPasswordVisible.value =
+                  !isConfirmPasswordVisible.value,
+              suffixIcon: isConfirmPasswordVisible.value
+                  ? Icons.visibility
+                  : Icons.visibility_off,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return "Confirm Password is required";
+                }
+                if (value != passwordController.text) {
+                  return "Passwords do not match";
+                }
+                return null;
+              },
             );
           }),
         ],

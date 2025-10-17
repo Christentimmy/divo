@@ -1,13 +1,32 @@
+// import 'package:contacts_service/contacts_service.dart';
+import 'package:divo/app/modules/contacts/controller/contact_controller.dart';
 import 'package:divo/app/resources/app_colors.dart';
 import 'package:divo/app/widgets/custom_textfield.dart';
 import 'package:divo/app/widgets/staggered_column_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ContactsScreen extends StatelessWidget {
+class ContactsScreen extends StatefulWidget {
   const ContactsScreen({super.key});
+
+  @override
+  State<ContactsScreen> createState() => _ContactsScreenState();
+}
+
+class _ContactsScreenState extends State<ContactsScreen> {
+  final contactController = Get.find<ContactController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (contactController.contacts.isNotEmpty) return;
+      contactController.loadContacts();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +59,10 @@ class ContactsScreen extends StatelessWidget {
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: 10,
+              itemCount: contactController.contacts.length,
               itemBuilder: (context, index) {
-                return buildContactCard();
+                final contact = contactController.contacts[index];
+                return buildContactCard(contact: contact);
               },
             ),
           ],
@@ -51,7 +71,7 @@ class ContactsScreen extends StatelessWidget {
     );
   }
 
-  Container buildContactCard() {
+  Widget buildContactCard({required Contact contact}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
@@ -70,7 +90,7 @@ class ContactsScreen extends StatelessWidget {
           HapticFeedback.lightImpact();
         },
         title: Text(
-          "John Doe",
+          contact.displayName,
           style: GoogleFonts.fredoka(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -78,7 +98,9 @@ class ContactsScreen extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          "+81 90 1234 5678",
+          contact.phones.isNotEmpty
+              ? contact.phones.first.number
+              : "",
           style: GoogleFonts.fredoka(
             fontSize: 14,
             fontWeight: FontWeight.w400,
