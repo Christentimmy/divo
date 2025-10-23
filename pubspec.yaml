@@ -12,10 +12,13 @@ dependencies:
     sdk: flutter
   flutter_contacts: ^1.1.9+2
   flutter_staggered_animations: ^1.1.1
+  flutter_webrtc: ^0.12.12+hotfix.1
   get: ^4.7.2
   google_fonts: ^6.3.2
+  linphone_flutter_plugin: ^0.0.2
   permission_handler: ^12.0.1
   pinput: ^5.0.2
+  sip_ua: ^1.0.1
 
 dev_dependencies:
   flutter_test:

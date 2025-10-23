@@ -1,3 +1,4 @@
+import 'package:divo/app/controller/auth_controller.dart';
 import 'package:divo/app/resources/app_colors.dart';
 import 'package:divo/app/routes/app_routes.dart';
 import 'package:divo/app/widgets/custom_button.dart';
@@ -16,6 +17,7 @@ class LoginScreen extends StatelessWidget {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +52,12 @@ class LoginScreen extends StatelessWidget {
             buildFormFields(),
             SizedBox(height: Get.height * 0.1),
             CustomButton(
-              ontap: () {
+              ontap: () async {
                 HapticFeedback.lightImpact();
                 if (formKey.currentState?.validate() == false) return;
-                Get.offNamed(AppRoutes.bottomNavigation);
+                await authController.sipConnect();
               },
-              isLoading: false.obs,
+              isLoading: authController.isloading,
               child: Text(
                 "Login",
                 style: GoogleFonts.fredoka(

@@ -1,12 +1,16 @@
-// import 'package:contacts_service/contacts_service.dart';
+import 'dart:async';
+
+import 'package:divo/app/data/services/liphone_service.dart';
 import 'package:divo/app/modules/contacts/controller/contact_controller.dart';
 import 'package:divo/app/modules/contacts/widgets/build_contact_card_widget.dart';
 import 'package:divo/app/resources/app_colors.dart';
+import 'package:divo/app/routes/app_routes.dart';
 import 'package:divo/app/widgets/custom_textfield.dart';
 import 'package:divo/app/widgets/staggered_column_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:linphone_flutter_plugin/call_state.dart';
 
 class ContactsScreen extends StatefulWidget {
   const ContactsScreen({super.key});
@@ -17,6 +21,8 @@ class ContactsScreen extends StatefulWidget {
 
 class _ContactsScreenState extends State<ContactsScreen> {
   final contactController = Get.find<ContactController>();
+  final linphoneService = LinphoneService();
+  StreamSubscription<CallState>? _callStateSubscription;
 
   @override
   void initState() {
@@ -25,8 +31,22 @@ class _ContactsScreenState extends State<ContactsScreen> {
       if (contactController.contacts.isNotEmpty) return;
       contactController.loadContacts();
     });
+    
+    // Listen to call state changes
+    // _callStateSubscription = linphoneService.callStateStream.listen((state) {
+    //   print(">>>>>>>>>>>>>>>>>>>>>>>.Call State: $state>>>>>>>>>>>>>>>>>>>>>");
+    //   if (state == CallState.IncomingReceived) {
+    //     print(">>>>>>>>>>>>>>>>>>>>>>>.Incoming call detected, navigating to call screen>>>>>>>>>>>>>>>>>>>>>");
+    //     Get.toNamed(AppRoutes.call);
+    //   }
+    // });
   }
 
+  @override
+  void dispose() {
+    _callStateSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +129,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
       ),
     );
   }
-
 
   Center buildLogoText() {
     return Center(

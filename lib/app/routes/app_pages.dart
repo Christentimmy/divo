@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:divo/app/modules/auth/views/login_screen.dart';
 import 'package:divo/app/modules/auth/views/otp_screen.dart';
 import 'package:divo/app/modules/auth/views/signup_screen.dart';
+import 'package:divo/app/modules/call/views/call_screen.dart';
 import 'package:divo/app/modules/contacts/views/contacts_screen.dart';
 import 'package:divo/app/modules/contacts/views/history_screen.dart';
 import 'package:divo/app/modules/dial/views/create_contact_screen.dart';
@@ -19,26 +20,41 @@ class AppPages {
     GetPage(name: AppRoutes.signup, page: () => SignupScreen()),
     GetPage(name: AppRoutes.login, page: () => LoginScreen()),
     GetPage(name: AppRoutes.dial, page: () => DialScreen()),
-    GetPage(name: AppRoutes.otp, page: () {
-      final arguments = Get.arguments ?? {};
-      final email = arguments['email'] as String;
-      final onVerifiedCallBack = arguments['onVerifiedCallBack'] as VoidCallback?;
-      if (email.isEmpty) {
-        throw Exception("Email is required");
-      }
-      return OtpScreen(email: email, onVerifiedCallBack: onVerifiedCallBack);
-    }),
-    GetPage(name: AppRoutes.createContact, page: () {
-      final arguments = Get.arguments ?? {};
-      final phoneNumber = arguments['phoneNumber'] as String;
-      if (phoneNumber.isEmpty) {
-        throw Exception("Phone number is required");
-      }
-      return CreateContactScreen(phoneNumber: phoneNumber);
-    }),
+    GetPage(
+      name: AppRoutes.otp,
+      page: () {
+        final arguments = Get.arguments ?? {};
+        final email = arguments['email'] as String;
+        final onVerifiedCallBack =
+            arguments['onVerifiedCallBack'] as VoidCallback?;
+        if (email.isEmpty) {
+          throw Exception("Email is required");
+        }
+        return OtpScreen(email: email, onVerifiedCallBack: onVerifiedCallBack);
+      },
+    ),
+    GetPage(
+      name: AppRoutes.createContact,
+      page: () {
+        final arguments = Get.arguments ?? {};
+        final phoneNumber = arguments['phoneNumber'] as String;
+        if (phoneNumber.isEmpty) {
+          throw Exception("Phone number is required");
+        }
+        return CreateContactScreen(phoneNumber: phoneNumber);
+      },
+    ),
     GetPage(name: AppRoutes.contacts, page: () => ContactsScreen()),
     GetPage(name: AppRoutes.history, page: () => HistoryScreen()),
     GetPage(name: AppRoutes.settings, page: () => SettingsScreen()),
-    GetPage(name: AppRoutes.bottomNavigation, page: () => BottomNavigationWidget()),
+    GetPage(
+      name: AppRoutes.bottomNavigation,
+      page: () => BottomNavigationWidget(),
+    ),
+    GetPage(
+      name: AppRoutes.call,
+      page: () => const CallScreen(),
+      // CallController is now permanent in AppBindings, no need for binding here
+    ),
   ];
 }

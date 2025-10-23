@@ -32,10 +32,7 @@ class BottomNavigationWidget extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
           items: [
             BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.call),
-              label: '',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.call), label: ''),
             BottomNavigationBarItem(icon: Icon(Icons.history), label: ''),
             BottomNavigationBarItem(icon: Icon(Icons.settings), label: ''),
           ],

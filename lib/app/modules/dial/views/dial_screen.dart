@@ -40,12 +40,25 @@ class DialScreen extends StatelessWidget {
         children: [
           // Call button
           InkWell(
-            onTap: () {},
+            onTap: () async {
+              await dialController.makeCall();
+            },
             borderRadius: BorderRadius.circular(40),
             child: CircleAvatar(
               radius: 35,
               backgroundColor: AppColors.neonPurpleGlow,
-              child: Icon(Icons.phone, color: Colors.white, size: 32),
+              child: Obx(() {
+                if (dialController.isLoading.value) {
+                  return const CircularProgressIndicator(
+                    color: Colors.white,
+                  );
+                }
+                return const Icon(
+                  Icons.phone,
+                  color: Colors.white,
+                  size: 32,
+                );
+              }),
             ),
           ),
           const SizedBox(width: 40),

@@ -1,13 +1,18 @@
+import 'package:divo/app/data/services/liphone_service.dart';
 import 'package:divo/app/modules/contacts/controller/contact_controller.dart';
+import 'package:divo/app/routes/app_routes.dart';
+import 'package:divo/app/widgets/snack_bar.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get/get.dart';
 
 class DialController extends GetxController {
   final contactController = Get.find<ContactController>();
+  final service = LinphoneService();
 
   final RxString input = ''.obs;
+  final RxBool isLoading = false.obs;
   final RxList contacts = <Contact>[].obs;
   final RxList filterContacts = <Contact>[].obs;
   final List<Map<String, String>> keys = [
@@ -63,6 +68,24 @@ class DialController extends GetxController {
   void onBackspace() {
     if (input.isNotEmpty) {
       input.value = input.value.substring(0, input.value.length - 1);
+    }
+  }
+
+  Future<void> makeCall() async {
+    isLoading.value = true;
+    try {
+      
+      final success = await service.call("gsukuna");
+      // final success = await service.call("sip:2233592973@sip2sip.info");
+      if (!success) {
+        CustomSnackbar.showErrorToast("Call failed");
+        return;
+      }
+      Get.toNamed(AppRoutes.call);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isLoading.value = false;
     }
   }
 }

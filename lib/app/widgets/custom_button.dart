@@ -1,4 +1,3 @@
-
 import 'package:divo/app/resources/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,7 +14,7 @@ class CustomButton extends StatelessWidget {
   double? width;
   Widget? child;
   RxBool isLoading;
-  
+
   CustomButton({
     super.key,
     this.text,
@@ -46,7 +45,7 @@ class CustomButton extends StatelessWidget {
         child: Obx(() {
           return isLoading.value
               ? const CircularProgressIndicator(color: Colors.white)
-              : child ?? Text(text.toString(), style: Get.textTheme.bodyMedium);
+              : child ?? Text(text.toString());
         }),
       ),
     );

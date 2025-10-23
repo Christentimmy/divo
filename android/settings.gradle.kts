@@ -16,6 +16,21 @@ pluginManagement {
     }
 }
 
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        // Official Linphone SDK Maven repository
+        maven {
+            url = uri("https://linphone.org/releases/maven_repository/")
+        }
+        // JitPack repository for flutter_webrtc dependencies
+        maven {
+            url = uri("https://jitpack.io")
+        }
+    }
+}
+
 plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
     id("com.android.application") version "8.7.3" apply false

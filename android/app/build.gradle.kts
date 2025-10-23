@@ -24,7 +24,7 @@ android {
         applicationId = "com.example.divo"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -37,6 +37,14 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+}
+
+dependencies {
+    // Official Linphone SDK (latest stable version)
+    implementation("org.linphone:linphone-sdk-android:5.2.0")
+    
+    // Audio focus management (required for SDK 5.0+)
+    implementation("androidx.media:media:1.7.0")
 }
 
 flutter {
