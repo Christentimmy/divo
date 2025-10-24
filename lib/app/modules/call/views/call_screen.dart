@@ -58,7 +58,9 @@ class CallScreen extends GetView<CallController> {
                   ),
                 ),
                 _buildButton(
-                  icon: Icons.volume_up,
+                  icon: controller.isSpeakerOn.value
+                      ? Icons.volume_up
+                      : Icons.volume_off,
                   label: 'Speaker',
                   onPressed: controller.toggleSpeaker,
                 ),
@@ -93,7 +95,7 @@ class CallScreen extends GetView<CallController> {
   Widget getCallStateText() {
     final state = controller.callState.value;
     String stateText = "";
-    
+
     switch (state) {
       case 'OutgoingRinging':
         stateText = "Ringing...";
@@ -128,7 +130,7 @@ class CallScreen extends GetView<CallController> {
       default:
         stateText = state ?? "Idle";
     }
-    
+
     return Text(
       stateText,
       style: GoogleFonts.fredoka(

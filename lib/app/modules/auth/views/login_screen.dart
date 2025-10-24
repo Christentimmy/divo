@@ -17,6 +17,7 @@ class LoginScreen extends StatelessWidget {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final domainController = TextEditingController();
   final authController = Get.find<AuthController>();
 
   @override
@@ -55,7 +56,11 @@ class LoginScreen extends StatelessWidget {
               ontap: () async {
                 HapticFeedback.lightImpact();
                 if (formKey.currentState?.validate() == false) return;
-                await authController.sipConnect();
+                await authController.sipConnect(
+                  username: emailController.text,
+                  password: passwordController.text,
+                  domain: domainController.text,
+                );
               },
               isLoading: authController.isloading,
               child: Text(
@@ -104,7 +109,7 @@ class LoginScreen extends StatelessWidget {
       child: Column(
         children: [
           CustomTextField(
-            hintText: "Email",
+            hintText: "Username",
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icons.email,
@@ -125,6 +130,13 @@ class LoginScreen extends StatelessWidget {
                   : Icons.visibility_off,
             );
           }),
+          SizedBox(height: Get.height * 0.02),
+          CustomTextField(
+            controller: domainController,
+            hintText: "Domain",
+            prefixIcon: Icons.domain,
+            prefixIconColor: const Color.fromARGB(255, 174, 144, 201),
+          ),
         ],
       ),
     );

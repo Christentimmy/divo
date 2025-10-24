@@ -75,7 +75,7 @@ class DialController extends GetxController {
     isLoading.value = true;
     try {
       
-      final success = await service.call("gsukuna");
+      final success = await service.call("sip:gsukuna@sip.linphone.org");
       // final success = await service.call("sip:2233592973@sip2sip.info");
       if (!success) {
         CustomSnackbar.showErrorToast("Call failed");

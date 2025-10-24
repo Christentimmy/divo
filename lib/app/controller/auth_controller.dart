@@ -12,7 +12,11 @@ class AuthController extends GetxController {
   final LinphoneService _service = LinphoneService();
   StreamSubscription? _registrationSubscription;
 
-  Future<void> sipConnect() async {
+  Future<void> sipConnect({
+    required String username,
+    required String password,
+    required String domain,
+  }) async {
     isloading.value = true;
     try {
       // Initialize call state listener first
@@ -47,9 +51,9 @@ class AuthController extends GetxController {
 
       // Attempt login
       final success = await _service.login(
-        username: 'timmychris09',
-        password: 'Timileyin',
-        domain: 'sip.linphone.org',
+        username: username,
+        password: password,
+        domain: domain,
       );
 
       if (!success) {
