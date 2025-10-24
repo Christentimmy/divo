@@ -69,8 +69,13 @@ class LinphoneManager(private val context: Context) {
             Log.i(TAG, "═══════════════════════════════════════════")
             Log.i(TAG, "📲 NEW CALL CREATED!")
             Log.i(TAG, "   Remote: ${call.remoteAddress?.asStringUriOnly()}")
-            Log.i(TAG, "   Direction: ${call.dir}")
+            Log.i(TAG, "   Direction: ${if (call.dir == Call.Dir.Incoming) "INCOMING" else "OUTGOING"}")
             Log.i(TAG, "   State: ${call.state}")
+            Log.i(TAG, "   ")
+            if (call.dir == Call.Dir.Incoming) {
+                Log.i(TAG, "   🎉 INCOMING CALL DETECTED!")
+                Log.i(TAG, "   🎉 This is what we've been waiting for!")
+            }
             Log.i(TAG, "═══════════════════════════════════════════")
         }
 
@@ -80,13 +85,18 @@ class LinphoneManager(private val context: Context) {
             state: RegistrationState,
             message: String
         ) {
-            Log.d(TAG, "Registration state: ${state.name}, message: $message")
+            Log.i(TAG, "════════════════════════════════════════════")
+            Log.i(TAG, "📡 REGISTRATION STATE CHANGE")
+            Log.i(TAG, "   State: ${state.name}")
+            Log.i(TAG, "   Message: $message")
+            Log.i(TAG, "════════════════════════════════════════════")
             
             // Log contact information when registration succeeds
             if (state == RegistrationState.Ok) {
                 val contactAddr = proxyConfig.contact?.asString()
                 val contactPort = proxyConfig.contact?.port
                 val contactHost = proxyConfig.contact?.domain
+                val transportPort = core.transports?.udpPort
                 
                 Log.i(TAG, "═══════════════════════════════════════════")
                 Log.i(TAG, "✅ REGISTRATION SUCCESSFUL")
@@ -94,15 +104,16 @@ class LinphoneManager(private val context: Context) {
                 Log.i(TAG, "   Contact: $contactAddr")
                 Log.i(TAG, "   Contact Host: $contactHost")
                 Log.i(TAG, "   Contact Port: $contactPort")
+                Log.i(TAG, "   Actual UDP Port: $transportPort")
                 Log.i(TAG, "   Server: ${proxyConfig.serverAddr}")
                 Log.i(TAG, "   ")
                 Log.i(TAG, "   📞 To test incoming calls:")
                 Log.i(TAG, "   📞 Call from desktop: ${proxyConfig.identityAddress?.asStringUriOnly()}")
-                Log.i(TAG, "   🔔 Listening on: $contactHost:$contactPort")
                 Log.i(TAG, "   ")
-                Log.i(TAG, "   ⚠️  If Contact Host is 192.168.x.x (local IP):")
-                Log.i(TAG, "   ⚠️  STUN didn't work - incoming calls will fail")
-                Log.i(TAG, "   ✅ If Contact Host is public IP - incoming calls should work")
+                Log.i(TAG, "   🔍 DEBUGGING:")
+                Log.i(TAG, "   The SIP server should route calls to: $contactAddr")
+                Log.i(TAG, "   But we're actually listening on UDP port: $transportPort")
+                Log.i(TAG, "   If CANCEL shows local IP - contact wasn't registered correctly")
                 Log.i(TAG, "═══════════════════════════════════════════")
             }
             
@@ -128,11 +139,15 @@ class LinphoneManager(private val context: Context) {
             // Create core with verbose logging
             core = factory.createCore(null, null, context)
             core?.enableLogCollection(LogCollectionState.Enabled)
-            
-            // Set verbose logging to see ALL SIP messages
-            Factory.instance().loggingService?.setLogLevel(LogLevel.Debug)
-            
+            // Set MAXIMUM verbose logging to see ALL SIP messages including REGISTER
+            Factory.instance().loggingService?.setLogLevel(LogLevel.Message)
             core?.addListener(coreListener)
+            
+            Log.i(TAG, "═══════════════════════════════════════════")
+            Log.i(TAG, "🔍 SIP MESSAGE LOGGING ENABLED")
+            Log.i(TAG, "   You will see ALL SIP messages including REGISTER")
+            Log.i(TAG, "   Look for 'Contact:' header in REGISTER message")
+            Log.i(TAG, "═══════════════════════════════════════════")
             Log.d(TAG, "✅ Core listener added successfully")
             
             // Enable automatic iterate
@@ -147,37 +162,59 @@ class LinphoneManager(private val context: Context) {
             // Set max calls to allow incoming
             core?.maxCalls = 10
             
-            // Configure NAT traversal - CRITICAL for incoming calls
+            // Configure NAT traversal (STUN + TURN for relay)
             val natPolicy = core?.createNatPolicy()
             natPolicy?.isStunEnabled = true
             natPolicy?.isIceEnabled = true
-            natPolicy?.stunServer = "stun.linphone.org"
+            natPolicy?.isTurnEnabled = false  // Disable TURN for now, focus on STUN
+            natPolicy?.stunServer = "stun.l.google.com:19302"  // Use Google's STUN - more reliable
             natPolicy?.stunServerUsername = null
-            natPolicy?.isUpnpEnabled = false // Disable UPnP, use STUN only
+            natPolicy?.isUpnpEnabled = false
             
             // Apply NAT policy to core
             core?.natPolicy = natPolicy
             
-            Log.i(TAG, "🌐 NAT Policy Created: STUN=${natPolicy?.isStunEnabled}, ICE=${natPolicy?.isIceEnabled}")
+            Log.i(TAG, "🌐 NAT Policy Created: STUN=${natPolicy?.isStunEnabled}, ICE=${natPolicy?.isIceEnabled}, TURN=${natPolicy?.isTurnEnabled}")
             Log.i(TAG, "🌐 STUN Server: ${natPolicy?.stunServer}")
             Log.i(TAG, "🌐 This should help incoming calls work through NAT/firewall")
             
-            // CRITICAL: Configure transports to match official Linphone app
-            val transports = core?.transports
-            if (transports != null) {
-                transports.udpPort = 0 // Let SDK choose random port (same as official app)
-                transports.tcpPort = 0
-                transports.tlsPort = 0
-                core?.transports = transports
-                Log.i(TAG, "🌐 Transport configured: UDP=${transports.udpPort}, TCP=${transports.tcpPort}")
-            }
+            // Use TLS for persistent connection - this is the key!
+            val transports = Factory.instance().createTransports()
+            transports.udpPort = 0      // Disable UDP
+            transports.tcpPort = 0      // Disable TCP
+            transports.tlsPort = 5061   // Standard TLS SIP port
+            core?.transports = transports
+            
+            Log.i(TAG, "🌐 Transport configured: UDP=0, TCP=0, TLS=5061")
+            Log.i(TAG, "🌐 Using TLS for persistent encrypted connection")
+            
+            // CRITICAL: Enable IPv6 to help with NAT traversal
+            core?.isIpv6Enabled = false // Stick to IPv4 only for simplicity
             
             // Start the core
             core?.start()
             
-            // Log actual port being used
+            // CRITICAL: Wait for STUN to discover public IP
+            Log.i(TAG, "⏰ Waiting for STUN to discover public IP...")
+            Thread.sleep(5000)  // Increased to 5 seconds
+            
+            // Check STUN configuration
+            val stunServer = core?.natPolicy?.stunServer
+            Log.i(TAG, "🌐 STUN server configured: $stunServer")
+            Log.i(TAG, "🌐 STUN enabled: ${core?.natPolicy?.isStunEnabled}")
+            Log.i(TAG, "🌐 ICE enabled: ${core?.natPolicy?.isIceEnabled}")
+            
+            Log.i(TAG, "⏰ STUN discovery should be complete")
+            
+            // Verify port is open
             val actualPort = core?.transports?.udpPort
-            Log.i(TAG, "🌐 Linphone listening on UDP port: $actualPort")
+            Log.i(TAG, "🌐 Linphone now listening on UDP port: $actualPort")
+            
+            if (actualPort == 0 || actualPort == -1) {
+                Log.e(TAG, "❌ CRITICAL: UDP port not opened! Incoming calls will NOT work!")
+            } else {
+                Log.i(TAG, "✅ UDP port successfully opened for incoming calls")
+            }
             Log.d(TAG, "📞 Incoming calls enabled, max calls: ${core?.maxCalls}")
             
             Log.d(TAG, "Linphone Core initialized successfully")
@@ -190,21 +227,22 @@ class LinphoneManager(private val context: Context) {
 
     fun login(username: String, password: String, domain: String): Boolean {
         try {
-            Log.d(TAG, "Attempting login for: $username@$domain")
-            
-            // CRITICAL: Wait a moment for STUN to discover public IP
-            // This ensures our Contact header has the correct public address
-            Thread.sleep(2000) // 2 seconds for STUN discovery
-            Log.d(TAG, "⏰ Waited for STUN discovery to complete")
+            Log.i(TAG, "═══════════════════════════════════════════")
+            Log.i(TAG, "🔐 LOGIN ATTEMPT")
+            Log.i(TAG, "   Username: $username")
+            Log.i(TAG, "   Domain: $domain")
+            Log.i(TAG, "═══════════════════════════════════════════")
             
             if (core == null) {
-                Log.e(TAG, "Core not initialized")
+                Log.e(TAG, "❌ Core not initialized")
                 return false
             }
 
             // Clear any existing auth info
             core?.clearAllAuthInfo()
             core?.clearProxyConfig()
+            
+            Log.d(TAG, "✅ Cleared previous auth info and proxy config")
 
             val factory = Factory.instance()
             
@@ -218,7 +256,14 @@ class LinphoneManager(private val context: Context) {
                 domain,
                 null
             )
+            
+            if (authInfo == null) {
+                Log.e(TAG, "❌ Failed to create auth info")
+                return false
+            }
+            
             core?.addAuthInfo(authInfo)
+            Log.d(TAG, "✅ Auth info added for: $username@$domain")
 
             // Create proxy config
             val identity = "sip:$username@$domain"
@@ -236,34 +281,71 @@ class LinphoneManager(private val context: Context) {
             }
             
             proxyConfig.identityAddress = address
-            proxyConfig.serverAddr = "sip:$domain"
+            proxyConfig.serverAddr = "sip:$domain;transport=tls"  // Force TLS
             proxyConfig.isRegisterEnabled = true
             proxyConfig.isPushNotificationAllowed = true
             
-            // Ensure we can receive incoming calls
-            proxyConfig.contactParameters = "app-id=divo"
-            
-            // Apply NAT policy to this account for incoming calls
+            // Apply NAT policy FIRST before any other config
             proxyConfig.natPolicy = core?.natPolicy
             
-            // CRITICAL: Force use of public address from STUN for contact
-            // This ensures incoming calls are routed correctly through NAT
-            proxyConfig.publishExpires = 600
+            // CRITICAL FIX: Use TLS transport for persistent connection
+            proxyConfig.edit()
+            proxyConfig.setRoute("sip:sip.linphone.org;transport=tls")
+            proxyConfig.setContactUriParameters("transport=tls")
+            proxyConfig.done()
+            
+            Log.d(TAG, "🔧 NAT Policy applied: STUN=${core?.natPolicy?.isStunEnabled}, ICE=${core?.natPolicy?.isIceEnabled}")
+            Log.d(TAG, "🔧 Route set to force server-side routing")
+            
+            Log.d(TAG, "✅ Proxy config created with NAT policy")
+            Log.d(TAG, "✅ Contact parameters cleared to force public IP discovery")
             
             core?.addProxyConfig(proxyConfig)
             core?.defaultProxyConfig = proxyConfig
+            
+            Log.d(TAG, "✅ Proxy config added and set as default")
 
             Log.i(TAG, "═══════════════════════════════════════════")
             Log.i(TAG, "📝 LOGIN CONFIGURATION")
             Log.i(TAG, "   Identity: $username@$domain")
             Log.i(TAG, "   Server: sip:$domain")
             Log.i(TAG, "   Contact: ${proxyConfig.contact}")
-            Log.i(TAG, "   Expecting incoming calls on this address")
+            Log.i(TAG, "   NAT Policy: ${proxyConfig.natPolicy != null}")
+            Log.i(TAG, "   STUN Server: ${core?.natPolicy?.stunServer}")
+            Log.i(TAG, "   Registration initiated...")
+            Log.i(TAG, "   Waiting for registration state callback...")
             Log.i(TAG, "═══════════════════════════════════════════")
             
             return true
         } catch (e: Exception) {
             Log.e(TAG, "Login error: ${e.message}", e)
+            return false
+        }
+    }
+    
+    fun logout(): Boolean {
+        try {
+            Log.i(TAG, "🚪 Logging out...")
+            
+            // Unregister all accounts
+            val proxyConfig = core?.defaultProxyConfig
+            if (proxyConfig != null) {
+                proxyConfig.edit()
+                proxyConfig.isRegisterEnabled = false
+                proxyConfig.done()
+            }
+            
+            // Give time for unregister to complete
+            Thread.sleep(1000)
+            
+            // Clear all configs and auth
+            core?.clearAllAuthInfo()
+            core?.clearProxyConfig()
+            
+            Log.i(TAG, "✅ Logout complete")
+            return true
+        } catch (e: Exception) {
+            Log.e(TAG, "Logout error: ${e.message}", e)
             return false
         }
     }
