@@ -12,4 +12,5 @@ class AppRoutes {
   static const String settings = '/settings';
   static const String bottomNavigation = '/bottomNavigation';
   static const String call = '/call';
+  static const String incomingCalls = '/incomingCalls';
 }

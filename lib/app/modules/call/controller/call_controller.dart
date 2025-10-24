@@ -26,17 +26,19 @@ class CallController extends GetxController {
       final state = callData['state'] as String?;
       final remote = callData['remoteAddress'] as String?;
       final direction = callData['direction'] as String?;
-      
-      debugPrint("📞 Call state: $state, Remote: $remote, Direction: $direction");
-      
+
+      debugPrint(
+        "📞 Call state: $state, Remote: $remote, Direction: $direction",
+      );
+
       callState.value = state;
       remoteAddress.value = remote;
       callDirection.value = direction;
-      
+
       if (state == 'IncomingReceived') {
-        Get.toNamed(AppRoutes.call);
+        Get.toNamed(AppRoutes.incomingCalls);
       }
-      
+
       if (state == 'Released' || state == 'End' || state == 'Error') {
         await Future.delayed(const Duration(seconds: 2), () {
           if (Get.currentRoute == AppRoutes.call) {
@@ -53,13 +55,18 @@ class CallController extends GetxController {
   }
 
   Future<void> toggleMute() async {
-    final muted = await _service.toggleMute();
-    isMuted.value = muted;
+    isMuted.value = !isMuted.value;
+    await _service.toggleMute();
   }
 
   Future<void> toggleSpeaker() async {
-    final speakerOn = await _service.toggleSpeaker();
-    isSpeakerOn.value = speakerOn;
+    isSpeakerOn.value = !isSpeakerOn.value;
+    await _service.toggleSpeaker();
+  }
+
+  Future<void> acceptCall() async {
+    Get.offNamed(AppRoutes.call);
+    await _service.acceptCall();
   }
 
   @override

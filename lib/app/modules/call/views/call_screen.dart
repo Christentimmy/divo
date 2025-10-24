@@ -57,12 +57,14 @@ class CallScreen extends GetView<CallController> {
                     onPressed: controller.toggleMute,
                   ),
                 ),
-                _buildButton(
-                  icon: controller.isSpeakerOn.value
-                      ? Icons.volume_up
-                      : Icons.volume_off,
-                  label: 'Speaker',
-                  onPressed: controller.toggleSpeaker,
+                Obx(
+                  () => _buildButton(
+                    icon: controller.isSpeakerOn.value
+                        ? Icons.volume_up
+                        : Icons.volume_off,
+                    label: 'Speaker',
+                    onPressed: controller.toggleSpeaker,
+                  ),
                 ),
               ],
             ),

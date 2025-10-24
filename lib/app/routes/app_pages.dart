@@ -4,6 +4,7 @@ import 'package:divo/app/modules/auth/views/login_screen.dart';
 import 'package:divo/app/modules/auth/views/otp_screen.dart';
 import 'package:divo/app/modules/auth/views/signup_screen.dart';
 import 'package:divo/app/modules/call/views/call_screen.dart';
+import 'package:divo/app/modules/call/views/incoming_call_screen.dart';
 import 'package:divo/app/modules/contacts/views/contacts_screen.dart';
 import 'package:divo/app/modules/contacts/views/history_screen.dart';
 import 'package:divo/app/modules/dial/views/create_contact_screen.dart';
@@ -56,5 +57,6 @@ class AppPages {
       page: () => const CallScreen(),
       // CallController is now permanent in AppBindings, no need for binding here
     ),
+    GetPage(name: AppRoutes.incomingCalls, page: () => IncomingCallScreen()),
   ];
 }
