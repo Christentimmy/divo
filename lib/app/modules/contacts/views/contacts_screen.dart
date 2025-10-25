@@ -1,10 +1,8 @@
 import 'dart:async';
-
 import 'package:divo/app/data/services/liphone_service.dart';
 import 'package:divo/app/modules/contacts/controller/contact_controller.dart';
 import 'package:divo/app/modules/contacts/widgets/build_contact_card_widget.dart';
 import 'package:divo/app/resources/app_colors.dart';
-import 'package:divo/app/routes/app_routes.dart';
 import 'package:divo/app/widgets/custom_textfield.dart';
 import 'package:divo/app/widgets/staggered_column_animation.dart';
 import 'package:flutter/material.dart';
@@ -31,15 +29,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
       if (contactController.contacts.isNotEmpty) return;
       contactController.loadContacts();
     });
-    
-    // Listen to call state changes
-    // _callStateSubscription = linphoneService.callStateStream.listen((state) {
-    //   print(">>>>>>>>>>>>>>>>>>>>>>>.Call State: $state>>>>>>>>>>>>>>>>>>>>>");
-    //   if (state == CallState.IncomingReceived) {
-    //     print(">>>>>>>>>>>>>>>>>>>>>>>.Incoming call detected, navigating to call screen>>>>>>>>>>>>>>>>>>>>>");
-    //     Get.toNamed(AppRoutes.call);
-    //   }
-    // });
   }
 
   @override

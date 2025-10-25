@@ -1,6 +1,7 @@
 package com.example.divo
 
 import android.content.Context
+import android.media.AudioManager
 import android.util.Log
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
@@ -23,6 +24,8 @@ class LinphoneManager(private val context: Context) {
     private var core: Core? = null
     private var callStateEventSink: EventChannel.EventSink? = null
     private var registrationStateEventSink: EventChannel.EventSink? = null
+    private val audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private var audioFocused = false
     
     private val coreListener = object : CoreListenerStub() {
         override fun onCallStateChanged(core: Core, call: Call, state: Call.State, message: String) {
@@ -33,6 +36,26 @@ class LinphoneManager(private val context: Context) {
             Log.i(TAG, "   Remote: ${call.remoteAddress?.asStringUriOnly()}")
             Log.i(TAG, "   Message: $message")
             Log.i(TAG, "═══════════════════════════════════════════")
+            
+            // CRITICAL: Setup audio when call connects
+            if (state == Call.State.StreamsRunning) {
+                setAudioModeInCommunication()
+                requestAudioFocus()
+                
+                // Enable speaker with delay to override Android's audio routing
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    enableSpeaker()
+                    Log.i(TAG, "🔊 Audio setup complete for call")
+                }, 500) // 500ms delay to let system settle
+            }
+            
+            // Clean up audio when call ends
+            if (state == Call.State.End || state == Call.State.Released || state == Call.State.Error) {
+                abandonAudioFocus()
+                setAudioModeNormal()
+                audioManager.isSpeakerphoneOn = false
+                Log.i(TAG, "🔊 Audio cleanup complete")
+            }
             
             val callData = mapOf(
                 "state" to state.name,
@@ -154,10 +177,18 @@ class LinphoneManager(private val context: Context) {
             core?.isAutoIterateEnabled = true
             Log.d(TAG, "✅ Auto iterate enabled")
             
-            // Configure audio settings
-            core?.isEchoCancellationEnabled = true
+            // Configure audio settings - DISABLE echo cancellation to fix audio quality
+            core?.isEchoCancellationEnabled = false  // Disable - causes audio corruption on some devices
             core?.isAdaptiveRateControlEnabled = true
             core?.isNativeRingingEnabled = true
+            
+            // Set audio device capabilities - Conservative settings for better quality
+            core?.micGainDb = 0.0f  // Normal mic gain
+            core?.playbackGainDb = 3.0f  // Moderate boost (+3dB) to avoid distortion
+            
+            // Enable audio focus for better audio routing
+            core?.ringDuringIncomingEarlyMedia = false
+            core?.isMediaEncryptionMandatory = false
             
             // Set max calls to allow incoming
             core?.maxCalls = 10
@@ -360,14 +391,14 @@ class LinphoneManager(private val context: Context) {
             // Clean address - remove any existing sip: prefix
             var cleanAddress = address.trim()
             if (cleanAddress.startsWith("sip:")) {
-                cleanAddress = cleanAddress.substring(4)
+               cleanAddress = cleanAddress.substring(4)
             }
             
             // If address doesn't contain @, add default domain
-            if (!cleanAddress.contains("@")) {
+           if (!cleanAddress.contains("@")) {
                 val defaultProxy = core?.defaultProxyConfig
-                val domain = defaultProxy?.domain
-                if (domain != null) {
+               val domain = defaultProxy?.domain
+               if (domain != null) {
                     cleanAddress = "$cleanAddress@$domain"
                 }
             }
@@ -402,14 +433,52 @@ class LinphoneManager(private val context: Context) {
         try {
             val call = core?.currentCall ?: return false
             
+            // Setup audio BEFORE accepting
+            setAudioModeInCommunication()
+            requestAudioFocus()
+            
             val params = core?.createCallParams(call)
             params?.isVideoEnabled = false
+            params?.isAudioEnabled = true
             
             call.acceptWithParams(params)
             Log.d(TAG, "Call answered")
+            
+            // Enable speaker immediately after answering
+            enableSpeaker()
+            Log.i(TAG, "🔊 Audio setup complete after answering call")
+            
             return true
         } catch (e: Exception) {
             Log.e(TAG, "Answer call error: ${e.message}", e)
+            return false
+        }
+    }
+
+    fun acceptCall(): Boolean {
+        try {
+            val call = core?.currentCall
+            if (call != null) {
+                // Setup audio BEFORE accepting
+                setAudioModeInCommunication()
+                requestAudioFocus()
+                
+                val params = core?.createCallParams(call)
+                params?.isVideoEnabled = false
+                params?.isAudioEnabled = true
+                
+                call.acceptWithParams(params)
+                Log.d(TAG, "Call accepted")
+                
+                // Enable speaker immediately after accepting
+                enableSpeaker()
+                Log.i(TAG, "🔊 Audio setup complete after accepting call")
+                
+                return true
+            }
+            return false
+        } catch (e: Exception) {
+            Log.e(TAG, "Accept call error: ${e.message}", e)
             return false
         }
     }
@@ -419,7 +488,13 @@ class LinphoneManager(private val context: Context) {
             val call = core?.currentCall
             if (call != null) {
                 call.terminate()
-                Log.d(TAG, "Call terminated")
+                
+                // Clean up audio
+                abandonAudioFocus()
+                setAudioModeNormal()
+                audioManager.isSpeakerphoneOn = false
+                
+                Log.d(TAG, "Call terminated and audio cleaned up")
                 return true
             }
             return false
@@ -473,6 +548,87 @@ class LinphoneManager(private val context: Context) {
         } catch (e: Exception) {
             Log.e(TAG, "Toggle speaker error: ${e.message}", e)
             return false
+        }
+    }
+    
+    private fun requestAudioFocus() {
+        if (!audioFocused) {
+            val result = audioManager.requestAudioFocus(
+                null,
+                AudioManager.STREAM_VOICE_CALL,
+                AudioManager.AUDIOFOCUS_GAIN
+            )
+            audioFocused = (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
+            Log.i(TAG, "🎧 Audio focus requested: ${if (audioFocused) "Granted" else "Denied"}")
+        }
+    }
+    
+    private fun abandonAudioFocus() {
+        if (audioFocused) {
+            audioManager.abandonAudioFocus(null)
+            audioFocused = false
+            Log.i(TAG, "🎧 Audio focus abandoned")
+        }
+    }
+    
+    private fun setAudioModeInCommunication() {
+        if (audioManager.mode != AudioManager.MODE_IN_COMMUNICATION) {
+            audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+            Log.i(TAG, "🎧 Audio mode set to MODE_IN_COMMUNICATION")
+        }
+    }
+    
+    private fun setAudioModeNormal() {
+        audioManager.mode = AudioManager.MODE_NORMAL
+        Log.i(TAG, "🎧 Audio mode set to MODE_NORMAL")
+    }
+    
+    private fun enableSpeaker() {
+        try {
+            Log.i(TAG, "🔊 ========== ENABLING SPEAKER ==========")
+            
+            // Step 1: Set audio mode FIRST
+            audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+            Log.i(TAG, "🔊 Audio mode: ${audioManager.mode}")
+            
+            // Step 2: Force speakerphone ON
+            audioManager.isSpeakerphoneOn = true
+            Log.i(TAG, "🔊 isSpeakerphoneOn set to TRUE")
+            
+            // Step 3: Check if it actually worked
+            val isSpeakerActuallyOn = audioManager.isSpeakerphoneOn
+            Log.i(TAG, "🔊 isSpeakerphoneOn actual value: $isSpeakerActuallyOn")
+            
+            // Step 4: Set volume HIGH
+            val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL)
+            val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL)
+            Log.i(TAG, "🔊 Volume: $currentVolume / $maxVolume")
+            
+            // Always set to max for testing
+            audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, maxVolume, AudioManager.FLAG_SHOW_UI)
+            Log.i(TAG, "🔊 Volume set to MAX: $maxVolume")
+            
+            // Step 5: Set Linphone audio device
+            val devices = core?.audioDevices
+            Log.i(TAG, "🔊 Available devices: ${devices?.size}")
+            devices?.forEach { device ->
+                Log.i(TAG, "   📱 ${device.deviceName} (Type: ${device.type}, ID: ${device.id})")
+            }
+            
+            val speaker = devices?.find { it.type == AudioDevice.Type.Speaker }
+            if (speaker != null) {
+                core?.outputAudioDevice = speaker
+                Log.i(TAG, "✅ Linphone output set to: ${speaker.deviceName}")
+                
+                val currentDevice = core?.outputAudioDevice
+                Log.i(TAG, "🔊 Current Linphone device: ${currentDevice?.deviceName} (Type: ${currentDevice?.type})")
+            } else {
+                Log.e(TAG, "❌ NO SPEAKER DEVICE FOUND!")
+            }
+            
+            Log.i(TAG, "🔊 ======================================")
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Enable speaker error: ${e.message}", e)
         }
     }
 

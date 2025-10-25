@@ -61,6 +61,10 @@ class MainActivity : FlutterActivity() {
                     val success = linphoneManager.answerCall()
                     result.success(success)
                 }
+                "acceptCall" -> {
+                    val success = linphoneManager.acceptCall()
+                    result.success(success)
+                }
                 "hangUp" -> {
                     val success = linphoneManager.hangUp()
                     result.success(success)

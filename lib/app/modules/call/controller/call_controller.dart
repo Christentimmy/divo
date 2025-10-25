@@ -35,6 +35,11 @@ class CallController extends GetxController {
       remoteAddress.value = remote;
       callDirection.value = direction;
 
+      // Auto-enable speaker when call connects
+      if (state == 'StreamsRunning' || state == 'Connected') {
+        isSpeakerOn.value = true; // Sync with native auto-enable
+      }
+
       if (state == 'IncomingReceived') {
         Get.toNamed(AppRoutes.incomingCalls);
       }

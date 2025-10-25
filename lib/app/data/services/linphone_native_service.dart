@@ -174,6 +174,24 @@ class LinphoneNativeService {
     }
   }
 
+  /// Accept incoming call (alias for answerCall)
+  Future<bool> acceptCall() async {
+    try {
+      final result = await _methodChannel.invokeMethod<bool>('acceptCall');
+      
+      if (result == true) {
+        debugPrint('✅ Call accepted');
+      } else {
+        debugPrint('❌ Accept call failed');
+      }
+
+      return result ?? false;
+    } catch (e) {
+      debugPrint('❌ Accept call error: $e');
+      return false;
+    }
+  }
+
   /// Hang up current call
   Future<bool> hangUp() async {
     try {

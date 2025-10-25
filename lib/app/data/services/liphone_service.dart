@@ -63,6 +63,7 @@ class LinphoneService {
         
         // Show notification for important states
         if (state == 'IncomingReceived') {
+          
           CustomSnackbar.showSuccessToast('Incoming call from $remoteAddress');
         } else if (state == 'Connected' || state == 'StreamsRunning') {
           CustomSnackbar.showSuccessToast('Call connected');
@@ -124,6 +125,7 @@ class LinphoneService {
   // Answer call
   Future<void> acceptCall() async {
     try {
+      Permission.microphone.request();
       await _linphone.answerCall();
     } catch (e) {
       debugPrint('❌ Accept call error: $e');
