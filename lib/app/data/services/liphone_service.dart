@@ -43,33 +43,15 @@ class LinphoneService {
     }
   }
 
-  // Initialize call state listener (called once after login)
   void initializeCallStateListener() {
-    // Cancel existing subscription if any
     _callStateSubscription?.cancel();
     _registrationSubscription?.cancel();
     
     debugPrint("✅ Initializing native Linphone listeners");
 
-    // Set up call state listener
     _callStateSubscription = _linphone.callStateStream.listen(
       (callData) {
-        final state = callData['state'] as String?;
-        final remoteAddress = callData['remoteAddress'] as String?;
-        final direction = callData['direction'] as String?;
-        
-        debugPrint('📞 Call state: $state, Remote: $remoteAddress, Direction: $direction');
         _callStateController.add(callData);
-        
-        // Show notification for important states
-        if (state == 'IncomingReceived') {
-          
-          CustomSnackbar.showSuccessToast('Incoming call from $remoteAddress');
-        } else if (state == 'Connected' || state == 'StreamsRunning') {
-          CustomSnackbar.showSuccessToast('Call connected');
-        } else if (state == 'End' || state == 'Released') {
-          CustomSnackbar.showErrorToast('Call ended');
-        }
       },
       onError: (error) {
         debugPrint('❌ Call state listener error: $error');
@@ -77,13 +59,8 @@ class LinphoneService {
       },
     );
 
-    // Set up registration state listener
     _registrationSubscription = _linphone.registrationStateStream.listen(
       (regData) {
-        final state = regData['state'] as String?;
-        final message = regData['message'] as String?;
-        
-        debugPrint('📡 Registration state: $state, Message: $message');
         _registrationStateController.add(regData);
       },
       onError: (error) {
@@ -92,7 +69,6 @@ class LinphoneService {
     );
   }
 
-  // Make call
   Future<bool> call(String number) async {
     try {
       // Request microphone permission first
@@ -122,7 +98,6 @@ class LinphoneService {
     }
   }
 
-  // Answer call
   Future<void> acceptCall() async {
     try {
       Permission.microphone.request();
@@ -133,7 +108,6 @@ class LinphoneService {
     }
   }
 
-  // Hangup
   Future<void> hangUp() async {
     try {
       await _linphone.hangUp();
@@ -142,7 +116,6 @@ class LinphoneService {
     }
   }
 
-  // Toggle Mute
   Future<bool> toggleMute() async {
     try {
       return await _linphone.toggleMute();
@@ -152,7 +125,6 @@ class LinphoneService {
     }
   }
 
-  // Check if muted
   Future<bool> isMuted() async {
     try {
       return await _linphone.isMicMuted();
@@ -162,7 +134,6 @@ class LinphoneService {
     }
   }
 
-  // Toggle speaker
   Future<bool> toggleSpeaker() async {
     try {
       return await _linphone.toggleSpeaker();
@@ -172,7 +143,6 @@ class LinphoneService {
     }
   }
 
-  // Get registration state
   Future<String> getRegistrationState() async {
     try {
       return await _linphone.getRegistrationState();
@@ -182,13 +152,10 @@ class LinphoneService {
     }
   }
 
-  // Listen to call state (broadcast stream that can be listened to multiple times)
   Stream<Map<String, dynamic>> get callStateStream => _callStateController.stream;
   
-  // Listen to registration state
   Stream<Map<String, dynamic>> get registrationStateStream => _registrationStateController.stream;
 
-  // Dispose method to clean up resources
   void dispose() {
     _callStateSubscription?.cancel();
     _registrationSubscription?.cancel();

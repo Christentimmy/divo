@@ -6,7 +6,6 @@ import 'package:sip_ua/sip_ua.dart';
 class SipService implements SipUaHelperListener {
   final SIPUAHelper _sipHelper = SIPUAHelper();
 
-  // Stream controllers for reactive updates
   final _callStateController = StreamController<CallStateEnum>.broadcast();
   final _registrationStateController =
       StreamController<RegistrationState>.broadcast();
@@ -15,7 +14,7 @@ class SipService implements SipUaHelperListener {
   MediaStream? _localStream;
   MediaStream? _remoteStream;
 
-  // Getters
+
   SIPUAHelper get sipHelper => _sipHelper;
   Call? get currentCall => _currentCall;
   MediaStream? get localStream => _localStream;
@@ -24,11 +23,6 @@ class SipService implements SipUaHelperListener {
   Stream<RegistrationState> get registrationStateStream =>
       _registrationStateController.stream;
 
-  // SipService() {
-  //   _sipHelper.addSipUaHelperListener(this);
-  // }
-
-  /// Initialize and connect to SIP server
   Future<bool> connect({
     required String wsUrl,
     required String username,
@@ -55,7 +49,6 @@ class SipService implements SipUaHelperListener {
     }
   }
 
-  /// Make an outgoing call
   Future<void> call(String destination, {bool voiceOnly = true}) async {
     Map<String, dynamic> callOptions = {
       'mediaConstraints': {'audio': true, 'video': !voiceOnly},
@@ -76,7 +69,6 @@ class SipService implements SipUaHelperListener {
     }
   }
 
-  /// Answer an incoming call
   void answer() {
     if (_currentCall != null) {
       final callOptions = {
@@ -86,14 +78,12 @@ class SipService implements SipUaHelperListener {
     }
   }
 
-  /// Hangup the current call
   void hangup() {
     if (_currentCall != null) {
       _currentCall!.hangup();
     }
   }
 
-  /// Mute/unmute the microphone
   void toggleMute() {
     if (_localStream != null) {
       final audioTracks = _localStream!.getAudioTracks();
@@ -106,7 +96,6 @@ class SipService implements SipUaHelperListener {
     }
   }
 
-  /// Hold/unhold the call
   void toggleHold() {
     if (_currentCall != null) {
       if (_currentCall!.state == CallStateEnum.HOLD) {
@@ -117,17 +106,14 @@ class SipService implements SipUaHelperListener {
     }
   }
 
-  /// Send DTMF tones
   void sendDtmf(String tone) {
     if (_currentCall != null) {
       _currentCall!.sendDTMF(tone);
     }
   }
 
-  /// Check if currently in a call
   bool get isInCall => _currentCall != null;
 
-  /// Check if microphone is muted
   bool get isMuted {
     if (_localStream != null) {
       final audioTracks = _localStream!.getAudioTracks();
@@ -138,7 +124,6 @@ class SipService implements SipUaHelperListener {
     return false;
   }
 
-  /// Disconnect from SIP server
   Future<void> disconnect() async {
     hangup();
     _sipHelper.stop();
@@ -149,7 +134,6 @@ class SipService implements SipUaHelperListener {
     return uri.host;
   }
 
-  // SipUaHelperListener implementations
   @override
   void callStateChanged(Call call, CallState state) {
     _currentCall = call;
@@ -183,19 +167,14 @@ class SipService implements SipUaHelperListener {
   @override
   void transportStateChanged(TransportState state) {
     debugPrint('Transport state changed: ${state.state}');
-    // if (state.state == TransportStateEnum.ERROR) {
-    //   debugPrint('Transport error: ${state.error}');
-    // }
   }
 
   @override
   void onNewMessage(SIPMessageRequest msg) {
-    // Handle incoming messages if needed
   }
 
   @override
   void onNewNotify(Notify ntf) {
-    // Handle notifications if needed
   }
 
   @override

@@ -54,7 +54,6 @@ class LinphoneNativeService {
   }
 
   void _setupEventChannels() {
-    // Listen to call state changes
     _callStateSubscription = _callStateChannel.receiveBroadcastStream().listen(
       (event) {
         debugPrint('📞 Call state event: $event');
@@ -81,7 +80,6 @@ class LinphoneNativeService {
     );
   }
 
-  /// Initialize the Linphone SDK
   Future<bool> initialize() async {
     if (_initialized) {
       debugPrint('✅ Linphone already initialized');
@@ -105,7 +103,6 @@ class LinphoneNativeService {
     }
   }
 
-  /// Login to SIP server
   Future<bool> login({
     required String username,
     required String password,
@@ -136,7 +133,6 @@ class LinphoneNativeService {
     }
   }
 
-  /// Make an outgoing call
   Future<bool> makeCall(String address) async {
     try {
       final result = await _methodChannel.invokeMethod<bool>('makeCall', {
@@ -156,7 +152,6 @@ class LinphoneNativeService {
     }
   }
 
-  /// Answer incoming call
   Future<bool> answerCall() async {
     try {
       final result = await _methodChannel.invokeMethod<bool>('answerCall');
@@ -174,7 +169,6 @@ class LinphoneNativeService {
     }
   }
 
-  /// Accept incoming call (alias for answerCall)
   Future<bool> acceptCall() async {
     try {
       final result = await _methodChannel.invokeMethod<bool>('acceptCall');
@@ -192,7 +186,6 @@ class LinphoneNativeService {
     }
   }
 
-  /// Hang up current call
   Future<bool> hangUp() async {
     try {
       final result = await _methodChannel.invokeMethod<bool>('hangUp');
@@ -210,7 +203,6 @@ class LinphoneNativeService {
     }
   }
 
-  /// Toggle microphone mute
   Future<bool> toggleMute() async {
     try {
       final isMuted = await _methodChannel.invokeMethod<bool>('toggleMute');
@@ -222,7 +214,6 @@ class LinphoneNativeService {
     }
   }
 
-  /// Toggle speaker
   Future<bool> toggleSpeaker() async {
     try {
       final isSpeakerOn = await _methodChannel.invokeMethod<bool>('toggleSpeaker');
@@ -234,7 +225,6 @@ class LinphoneNativeService {
     }
   }
 
-  /// Check if microphone is muted
   Future<bool> isMicMuted() async {
     try {
       final isMuted = await _methodChannel.invokeMethod<bool>('isMicMuted');
@@ -245,7 +235,6 @@ class LinphoneNativeService {
     }
   }
 
-  /// Get registration state
   Future<String> getRegistrationState() async {
     try {
       final state = await _methodChannel.invokeMethod<String>('getRegistrationState');
@@ -256,13 +245,10 @@ class LinphoneNativeService {
     }
   }
 
-  /// Stream of call state changes
   Stream<Map<String, dynamic>> get callStateStream => _callStateController.stream;
 
-  /// Stream of registration state changes
   Stream<Map<String, dynamic>> get registrationStateStream => _registrationStateController.stream;
 
-  /// Dispose resources
   void dispose() {
     _callStateSubscription?.cancel();
     _registrationSubscription?.cancel();
